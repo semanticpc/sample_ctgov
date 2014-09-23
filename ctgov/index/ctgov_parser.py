@@ -76,6 +76,10 @@ class ClinicalTrial_Parser(object):
                         if 'exc' in ec:
                             s = doc['ec_raw_text'].setdefault('exc', '')
                             doc['ec_raw_text']['exc'] = s + '. ' + ec['exc']
+                    if not doc['ec_raw_text'].has_key('exc'):
+                        doc['ec_raw_text']['exc'] = ''
+                    if not doc['ec_raw_text'].has_key('inc'):
+                        doc['ec_raw_text']['inc'] = ''
                 if doc['ec_raw_text'] is None:
                     log.warning('Eligibility Text not found -- %s' % nct_id)
                     return doc
