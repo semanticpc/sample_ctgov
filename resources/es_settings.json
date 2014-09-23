@@ -5,7 +5,7 @@
     },
 
     "mappings": {
-        "trial": {
+        "trials": {
 
             "_id": {
                 "index": "not_analyzed",

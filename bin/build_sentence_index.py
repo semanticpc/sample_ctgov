@@ -34,6 +34,7 @@ def nct_tagging(index_name, process_ids, stopwords, umls, pos, nprocs=1):
     sent_index.add_field('ec_tags_umls', term_vector=True)
 
 
+
     # Get clinical
     # process each clinical trial and store to XML file
     log.info('processing clinical trials')

@@ -98,5 +98,5 @@ if __name__ == '__main__':
         sys.exit(0)
     log.info('input dataset directory: %s \n' % args.din)
 
-    nct_index(args.din, args.index_name, args.settings_file, args.c)
+    nct_index(args.din, args.index_name, args.c)
     log.info('task completed\n')

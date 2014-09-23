@@ -5,6 +5,7 @@
 """
 from ctgov.utility.log import strd_logger
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search, Q
 from elasticsearch import ConnectionError
 import json
 
@@ -17,6 +18,7 @@ class ElasticSearch_Index(object):
         self.host_name = host
         self.port_number = port
         self.doc_type = 'trial'
+
         self.es = self.get_es_conn()
 
 
@@ -33,7 +35,7 @@ class ElasticSearch_Index(object):
 
         try:
             es = Elasticsearch()
-
+            self.search_obj = Search(es)
         except ConnectionError as ce:
             log.error('Unable to connect to Elastic Search Server')
             exit(0)
@@ -152,3 +154,17 @@ class ElasticSearch_Index(object):
             log.error('Unable to put mapping to index -- %s ' % e)
             return False
         return True
+
+    def search(self, field_name):
+        assert isinstance(self.search_obj, Search)
+
+        # define a bucket aggregation and metrics inside:
+        self.search_obj.index(self.index_name)
+        self.search_obj.aggs.bucket('tokens', 'terms', field=field_name, size=20)
+        query = {
+        'query': {"match_all": {}, 'aggregations': {"my_agg": {"terms": {"field": "ec_tags_umls", "size": 0}}}}}
+
+        q = Q('match_all')
+        s = Search.query(q).using(self.es)
+        print s.execute()
+
