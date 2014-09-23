@@ -85,7 +85,7 @@ def _process_args():
     # index name
     parser.add_argument('-index_name', default='ctgov', help='name of the elastic search index')
     # settings file path
-    parser.add_argument('-settings_file', default='None', help='index settings file (elastic search)')
+    # parser.add_argument('-settings_file', default=None, help='index settings file (elastic search)')
     # number of processers to use
     parser.add_argument('-c', default=1, type=int, help='number of processors (default: 1)')
     return parser.parse_args(sys.argv[1:])
