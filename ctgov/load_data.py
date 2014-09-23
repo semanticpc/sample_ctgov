@@ -15,10 +15,10 @@ log = strd_logger('load-data')
 def load_stop_words(dstop):
     if dstop is None:
         return None
-    eng = ufile.read_file('%senglish.csv' % dstop, 2)
+    eng = ufile.read_file('%s/english.csv' % dstop, 2)
     if not eng:
         eng = set()
-    med = ufile.read_file('%smedical.csv' % dstop, 2)
+    med = ufile.read_file('%s/medical.csv' % dstop, 2)
     if not med:
         med = set()
     pmed = set()

@@ -4,12 +4,12 @@
 	@author: Riccardo Miotto
 '''
 
-from lib.utility.log import strd_logger
+from ctgov.utility.log import strd_logger
 from matplotlib.backends.backend_pdf import PdfPages
 from pylab import *
 import numpy as np
 import matplotlib.pyplot as plt
-import lib.utility.file as ufile
+import ctgov.utility.file as ufile
 import argparse, sys, string, os
 
 log = strd_logger('cde-time-analysis')

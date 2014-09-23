@@ -4,12 +4,12 @@
  	@author: Riccardo Miotto
 '''
 
-from lib.utility.log import strd_logger
-from lib.load_data import load_data
+from ctgov.utility.log import strd_logger
+from ctgov.load_data import load_data
 from multiprocessing import Process, Queue
-from lib.ctgov.clinicaltrial import ClinicalTrial
-import lib.utility.file as ufile
-import lib.ctgov as ctgov
+from ctgov.index._clinicaltrial import ClinicalTrial
+import ctgov.utility.file as ufile
+import ctgov.index as ctgov
 import argparse, sys, math
 
 log = strd_logger('nct-processer')
@@ -18,7 +18,7 @@ log = strd_logger('nct-processer')
 def nct_processer(dout, stop=None, umls=None, ptag=None, nprocs=1):
     # get the list of clinical trials
     log.info('downloading the list of clinical trials')
-    nct = ctgov.get_clinical_trials()
+    nct = index.get_clinical_trials()
     if len(nct) == 0:
         log.error(' --- not found any clinical trials - interrupting \n')
         return
@@ -100,6 +100,6 @@ if __name__ == '__main__':
     edata = load_data(args.w, args.u, args.p)
     nct_processer(args.dout, edata[0], edata[1], edata[2], args.c)
     log.info('task completed\n')
-		
+
 
 

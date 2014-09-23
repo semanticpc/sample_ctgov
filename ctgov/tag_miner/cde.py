@@ -5,7 +5,7 @@
 '''
 
 from cvalue import substring_filtering
-from lib.utility.log import strd_logger
+from ctgov.utility.log import strd_logger
 import math, numpy, operator
 
 log = strd_logger('cde')

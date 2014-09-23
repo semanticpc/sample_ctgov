@@ -1,13 +1,12 @@
-'''
+"""
     Clinical Trial representation
-
     @author: Riccardo Miotto
-'''
+"""
 
-from lib.miner.textprocesser import TextProcesser
-from lib.miner.cvalue import substring_filtering
-from lib.utility.web import download_web_data
-from lib.utility.log import strd_logger
+from ctgov.tag_miner.textprocesser import TextProcesser
+from ctgov.tag_miner.cvalue import substring_filtering
+from ctgov.utility.web import download_web_data
+from ctgov.utility.log import strd_logger
 from datetime import datetime
 import xml.etree.ElementTree as xml_parser
 import math, re
@@ -39,11 +38,12 @@ class ClinicalTrial(object):
         download clinical trial and process xml
     '''
 
-    def process(self):
+    def parse(self):
 
         try:
-            xml = xml_parser.fromstring(download_web_data(self.trail_path))
-
+            print self.trail_path
+            xml = xml_parser.parse(self.trail_path)
+            print 'Root', xml._root
             # general
             self.title = self.__get_info(xml, 'brief_title')
             self.study_type = self.__get_info(xml, 'study_type')
@@ -138,7 +138,7 @@ class ClinicalTrial(object):
         out += 'Minimum Age: %s \n' % self.minimum_age
         out += 'Maximum Age: %s \n' % self.maximum_age
         out += 'Eligibility Criteria: %s \n' % self.ec
-        out += 'Processed Eligibility Criteria: %s \n' % self.pec
+        out += 'Processed Eligibility Criteria: %s \n' % self.jpec
         return out
 
 

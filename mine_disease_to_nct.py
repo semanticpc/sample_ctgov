@@ -4,11 +4,11 @@
  	@author: Riccardo Miotto
 '''
 
-from lib.utility.log import strd_logger
-from lib.utility.web import download_web_data
+from ctgov.utility.log import strd_logger
+from ctgov.utility.web import download_web_data
 import xml.etree.ElementTree as xml_parser
-import lib.utility.file as ufile
-import lib.ctgov as ctgov
+import ctgov.utility.file as ufile
+import ctgov.index as ctgov
 import argparse, sys
 
 log = strd_logger('disease-nct-association')

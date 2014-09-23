@@ -42,6 +42,7 @@ class TextProcesser:
         toremove = string.punctuation.replace('-', '')
         sent = nltk.tokenize.sent_tokenize(self.text)
         for s in sent:
+            s = s.decode('utf-8').strip()
             words = nltk.tokenize.word_tokenize(s)
             wc = [w for w in words if w not in toremove]
             pos = [t[1] for t in nltk.pos_tag(wc)]
@@ -54,40 +55,6 @@ class TextProcesser:
     # private functions
 
     # extract tags by ngram analysis
-    def __tag_extraction(self, words, pos):
-        for i in xrange(len(words)):
-            for j in xrange(i + 1, min(len(words), i + self.ngr) + 1):
-
-                # grammar validity
-                if len(words[i:j]) == 1:
-                    if (self.ptag is not None) and (not self.__check_grammar(i, pos)):
-                        continue
-
-                # mapping
-                t = self.__map_ngram(words[i:j])
-                if t is not None:
-                    self.ptxt.add(t)
-                elif (len(words) > 1) and (len(conj & set(words[i:j])) > 0):
-                    # analyze inner patterns with conjunctions
-                    stag = self.__scramble_ngram(words[i:j])
-                    if len(stag) > 0:
-                        self.ptxt |= stag
-
-                # analyze single words with '-' inside
-                if (len(words[i:j]) > 1):
-                    continue
-                tkn = ' '.join(words[i:j]).split('-')
-                if len(tkn) > 1:
-                    for t in tkn:
-                        if len(t) == 0:
-                            continue
-                        mt = self.__map_ngram([t])
-                        if mt is not None:
-                            self.ptxt.add(mt)
-        return
-
-
-    # standardize text by umls dictionary and semantic type
     def __umls_mapping(self, w):
         if self.umls:
             if (w not in self.umls.norm) or (len(self.umls.norm[w]) > 5):
@@ -123,6 +90,39 @@ class TextProcesser:
         else:
             return w
 
+
+    # standardize text by umls dictionary and semantic type
+    def __tag_extraction(self, words, pos):
+        for i in xrange(len(words)):
+            for j in xrange(i + 1, min(len(words), i + self.ngr) + 1):
+
+                # grammar validity
+                if len(words[i:j]) == 1:
+                    if (self.ptag is not None) and (not self.__check_grammar(i, pos)):
+                        continue
+
+                # mapping
+                t = self.__map_ngram(words[i:j])
+                if t is not None:
+                    self.ptxt.add(t)
+                elif (len(words) > 1) and (len(conj & set(words[i:j])) > 0):
+                    # analyze inner patterns with conjunctions
+                    stag = self.__scramble_ngram(words[i:j])
+                    if len(stag) > 0:
+                        self.ptxt |= stag
+
+                # analyze single words with '-' inside
+                if (len(words[i:j]) > 1):
+                    continue
+                tkn = ' '.join(words[i:j]).split('-')
+                if len(tkn) > 1:
+                    for t in tkn:
+                        if len(t) == 0:
+                            continue
+                        mt = self.__map_ngram([t])
+                        if mt is not None:
+                            self.ptxt.add(mt)
+        return
 
     # check tag validity
     def __check_tags(self, tag):

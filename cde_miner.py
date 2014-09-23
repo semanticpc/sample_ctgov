@@ -5,14 +5,14 @@
  	@author: Riccardo Miotto
 '''
 
-from lib.utility.log import strd_logger
-from lib.miner.cde import cde_miner
-from lib.load_data import load_umls
+from ctgov.utility.log import strd_logger
+from ctgov.miner.cde import cde_miner
+from ctgov.load_data import load_umls
 from datetime import timedelta
-import lib.utility.file as ufile
+import ctgov.utility.file as ufile
 import argparse, sys, math, datetime, zipfile, os, shutil
 
-log = strd_logger('cde-miner')
+log = strd_logger('cde-tag_miner')
 
 
 def mining_cde(nct, disease, nctmin=100, fth=0.03, umls=None, dout=None, yearstep=-1):

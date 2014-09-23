@@ -4,7 +4,7 @@
 	@author: Riccardo Miotto
 '''
 
-import lib.utility.file as ufile
+import ctgov.utility.file as ufile
 
 
 class UmlsDictionary:
