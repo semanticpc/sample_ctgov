@@ -14,7 +14,7 @@ import os
 log = strd_logger('nct-indexer')
 
 
-def nct_index(din, index_name, nprocs=1, settings_file=None):
+def nct_index(din, index_name, nprocs=1, host='localhost', port_no=9200, settings_file=None):
     # open the clinical trail ids file and load to a list
     log.info('opening file -- trial_ids.txt')
 
@@ -30,7 +30,7 @@ def nct_index(din, index_name, nprocs=1, settings_file=None):
         exit(0)
 
     # Create index using the provided settings file
-    index = es_index.ElasticSearch_Index(index_name)
+    index = es_index.ElasticSearch_Index(index_name, host=host, port=port_no)
     if settings_file == None:
         index.open_index()
     else:
@@ -44,7 +44,7 @@ def nct_index(din, index_name, nprocs=1, settings_file=None):
     chunksize = int(math.ceil(len(nct_ids) / float(nprocs)))
     for i in xrange(nprocs):
         p = Process(target=_worker, args=(nct_ids[chunksize * i:chunksize * (i + 1)],
-                                          trials_din, index_name, (i + 1)))
+                                          trials_din, index_name, host, port_no, (i + 1)))
         procs.append(p)
         p.start()
 
@@ -56,8 +56,8 @@ def nct_index(din, index_name, nprocs=1, settings_file=None):
 
 # processer worker
 # indexer function
-def _worker(nct, data_path, index_name, npr):
-    index = es_index.ElasticSearch_Index(index_name)
+def _worker(nct, data_path, index_name, host, port_no, npr):
+    index = es_index.ElasticSearch_Index(index_name, host=host, port=port_no)
     parser = ctgov_parser.ClinicalTrial_Parser(data_path)
 
     for i in xrange(1, len(nct) + 1):
@@ -81,6 +81,13 @@ def _process_args():
     parser.add_argument('-din', help='output data directory')
     # index name
     parser.add_argument('-index_name', default='ctgov', help='name of the elastic search index')
+
+    # host name
+    parser.add_argument('-host', default='localhost', help='Elastic search hostname')
+
+    # port number
+    parser.add_argument('-port', default='9200', help='Elastic search port number')
+
     # settings file path
     # parser.add_argument('-settings_file', default=None, help='index settings file (elastic search)')
     # number of processers to use
@@ -95,5 +102,5 @@ if __name__ == '__main__':
         sys.exit(0)
     log.info('input dataset directory: %s \n' % args.din)
 
-    nct_index(args.din, args.index_name, args.c)
+    nct_index(args.din, args.index_name, args.host, args.port, args.c)
     log.info('task completed\n')
