@@ -4,8 +4,10 @@
 """
 from ctgov.utility.log import strd_logger
 from datetime import datetime
+from ctgov.utility.web import clean_text
 import xml.etree.ElementTree as xml_parser
-import math, re
+import math
+import re
 
 log = strd_logger('ctgov-parser')
 
@@ -14,11 +16,9 @@ class ClinicalTrial_Parser(object):
     def __init__(self, data_path):
         self.data_path = data_path
 
-
     def parse(self, nct_id):
         try:
             trail_path = self.data_path + '/' + nct_id + '.xml'
-            print trail_path
             xml = xml_parser.parse(trail_path)
 
             # general
@@ -76,10 +76,6 @@ class ClinicalTrial_Parser(object):
                         if 'exc' in ec:
                             s = doc['ec_raw_text'].setdefault('exc', '')
                             doc['ec_raw_text']['exc'] = s + '. ' + ec['exc']
-                    if not doc['ec_raw_text'].has_key('exc'):
-                        doc['ec_raw_text']['exc'] = ''
-                    if not doc['ec_raw_text'].has_key('inc'):
-                        doc['ec_raw_text']['inc'] = ''
                 if doc['ec_raw_text'] is None:
                     log.warning('Eligibility Text not found -- %s' % nct_id)
                     return doc
@@ -96,10 +92,9 @@ class ClinicalTrial_Parser(object):
         if crt is None:
             return
         ectxt = crt.find('textblock')
-
         if ectxt is None:
             return
-        return self.__preprocess_ec(ectxt.text.encode('utf-8'))
+        return self.__preprocess_ec(clean_text(ectxt))
 
 
     def __todate(self, s):
@@ -116,12 +111,6 @@ class ClinicalTrial_Parser(object):
             log.error(e)
             return s
 
-
-    '''
-        get value of a field in the parent tag
-    '''
-
-
     def __get_info(self, parent, field):
         v = parent.find(field)
         if v is None:
@@ -130,12 +119,6 @@ class ClinicalTrial_Parser(object):
         if len(v) == 0:
             return
         return v
-
-
-    '''
-        check the age format
-    '''
-
 
     def __check_age(self, age, typ):
         try:
@@ -156,12 +139,6 @@ class ClinicalTrial_Parser(object):
                 return self.__format_age(val, typ, float(365))
         return
 
-
-    '''
-        format the age value
-    '''
-
-
     def __format_age(self, age, typ, div):
         if typ == 'max':
             return int(math.ceil(age / div))
@@ -169,9 +146,12 @@ class ClinicalTrial_Parser(object):
             return int(math.floor(age / div))
         return
 
-
-    # pre-process eligiblity criteria to guess inclusion/exclusion
     def __preprocess_ec(self, ec):
+        """
+        pre-process eligibility criteria to guess inclusion/exclusion
+        :param ec:
+        :return:
+        """
         ec = ' '.join(ec.replace('\n', ' ').split())
         stype = {}
 

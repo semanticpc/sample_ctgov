@@ -5,7 +5,9 @@
 '''
 
 import nltk, string, itertools
+from ctgov.utility.log import strd_logger
 
+log = strd_logger('textprocesser')
 conj = set(['and', 'or'])
 
 
@@ -40,7 +42,8 @@ class TextProcesser:
             return
 
         toremove = string.punctuation.replace('-', '')
-        sent = nltk.tokenize.sent_tokenize(self.text)
+        sent = self.text.decode('utf-8').strip()
+        sent = nltk.tokenize.sent_tokenize(sent)
         for s in sent:
             s = s.decode('utf-8').strip()
             words = nltk.tokenize.word_tokenize(s)
@@ -51,6 +54,11 @@ class TextProcesser:
                 print pos
             self.__tag_extraction(wc, pos)
 
+            # Apply the pre-filters
+
+            # Dictionary Mapping
+
+            # Apply post-filters
 
     # private functions
 
@@ -62,7 +70,9 @@ class TextProcesser:
             us = None
             cl = int(1000)
             wmap = None
+            print 'umls norm', self.umls.norm[w]
             for pt in self.umls.norm[w]:
+                print pt
                 dpt = pt.decode('utf-8')
                 # retain same
                 if dpt == w:
@@ -102,7 +112,7 @@ class TextProcesser:
                         continue
 
                 # mapping
-                t = self.__map_ngram(words[i:j])
+                t = self.map_ngram(words[i:j])
                 if t is not None:
                     self.ptxt.add(t)
                 elif (len(words) > 1) and (len(conj & set(words[i:j])) > 0):
@@ -119,7 +129,7 @@ class TextProcesser:
                     for t in tkn:
                         if len(t) == 0:
                             continue
-                        mt = self.__map_ngram([t])
+                        mt = self.map_ngram([t])
                         if mt is not None:
                             self.ptxt.add(mt)
         return
@@ -174,14 +184,14 @@ class TextProcesser:
         for c in comb:
             if len(c) == 1:
                 continue
-            t = self.__map_ngram(c)
+            t = self.map_ngram(c)
             if t is not None:
                 stag.add(t)
         return stag
 
 
     # map the ngram to tag
-    def __map_ngram(self, words):
+    def map_ngram(self, words):
         w = ' '.join(words).strip()
         if not self.__check_tags(w):
             return None
@@ -189,7 +199,3 @@ class TextProcesser:
         if not self.__check_tags(t):
             return None
         return t
-				
-
-			
-		

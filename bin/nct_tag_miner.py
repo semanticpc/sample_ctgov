@@ -7,8 +7,8 @@ from ctgov.load_data import load_data
 from ctgov.utility.log import strd_logger
 from multiprocessing import Process
 import ctgov.index.es_index as es_index
-from ctgov.tag_miner.textprocesser import TextProcesser
-from ctgov.tag_miner.cvalue import substring_filtering
+from ctgov.concept_mapping.textprocesser import TextProcesser
+from ctgov.concept_mapping.cvalue import substring_filtering
 import argparse
 import sys
 import math
@@ -49,16 +49,17 @@ def nct_tagging(index_name, process_ids, stopwords, umls, pos, nprocs=1):
 def _worker(nct, index_name, stopwords, umls, pos, npr):
     index = es_index.ElasticSearch_Index(index_name)
 
+    # Iterate over NCT trials
     for i in xrange(1, len(nct) + 1):
         nctid = nct[i - 1]
-        print nctid
         if i % 500 == 0:
             log.info(' --- core %d: indexed %d documents' % (npr, i))
 
+        # Get document from the Elastic Search Index
         doc = index.get_trail(nctid)
         ec = doc['ec_raw_text']
 
-        if ec == None:
+        if not doc.has_key('ec_raw_text') or ec == None:
             continue
 
         pec = {}
@@ -89,6 +90,8 @@ def _worker(nct, index_name, stopwords, umls, pos, npr):
             temp = [key, value]
             dictlist.append(temp)
         doc['ec_tags_umls'] = dictlist
+
+        # Index the new document
         index.index_trial(nctid, doc)
 
 

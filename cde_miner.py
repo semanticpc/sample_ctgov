@@ -1,9 +1,9 @@
-'''
- 	Mine CDEs for a set of disease
- 	@param yearstep: step for time analysis
+"""
+    Mine CDEs for a set of disease
+    @param yearstep: step for time analysis
 
- 	@author: Riccardo Miotto
-'''
+    @author: Riccardo Miotto
+"""
 
 from ctgov.utility.log import strd_logger
 from ctgov.miner.cde import cde_miner
@@ -12,7 +12,7 @@ from datetime import timedelta
 import ctgov.utility.file as ufile
 import argparse, sys, math, datetime, zipfile, os, shutil
 
-log = strd_logger('cde-tag_miner')
+log = strd_logger('cde-concept_mapping')
 
 
 def mining_cde(nct, disease, nctmin=100, fth=0.03, umls=None, dout=None, yearstep=-1):
@@ -258,6 +258,3 @@ if __name__ == '__main__':
     mining_cde(nct, disease, args.m, args.t, umls, args.o, args.y)
     log.info('task completed')
     print ''
-
-
-		

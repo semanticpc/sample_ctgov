@@ -7,6 +7,7 @@
 from utility.log import strd_logger
 from utility.umls import UmlsDictionary
 import utility.file as ufile
+import pickle
 
 log = strd_logger('load-data')
 
@@ -67,4 +68,5 @@ def load_data(dstop=None, dumls=None, fptag=None, fnegrule=None):
     umls = load_umls(dumls)
     ptag = load_pos_tags(fptag)
     negrule = load_negation_rule(fnegrule)
+
     return (stop, umls, ptag, negrule)

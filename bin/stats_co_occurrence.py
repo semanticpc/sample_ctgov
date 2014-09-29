@@ -1,8 +1,7 @@
 """
-    Retrieve Clinical Trials and Stores it onto a directory
+    <Module Explanation>
     @author: Praveen Chandar
 """
-
 from ctgov.utility.log import strd_logger
 from multiprocessing import Process, Queue
 import ctgov.utility.file as file_utils
@@ -14,7 +13,7 @@ import os
 log = strd_logger('nct-indexer')
 
 
-def nct_index(din, index_name, nprocs=1, settings_file=None):
+def nct_index(din, index_name, settings_file=None, nprocs=1):
     # open the clinical trail ids file and load to a list
     log.info('opening file -- trial_ids.txt')
 
@@ -59,7 +58,10 @@ def nct_index(din, index_name, nprocs=1, settings_file=None):
 def _worker(nct, data_path, index_name, npr):
     index = es_index.ElasticSearch_Index(index_name)
     parser = ctgov_parser.ClinicalTrial_Parser(data_path)
-
+    # trail_doc = parser.parse('NCT00000180')
+    # print trail_doc
+    # index.index_trial('NCT00000180',trail_doc)
+    # return
     for i in xrange(1, len(nct) + 1):
         nctid = nct[i - 1]
 
@@ -77,12 +79,10 @@ def _worker(nct, data_path, index_name, npr):
 # processing the command line options
 def _process_args():
     parser = argparse.ArgumentParser(description='Download and Process Clinical Trials')
-    # output directory
-    parser.add_argument('-din', help='output data directory')
+
     # index name
     parser.add_argument('-index_name', default='ctgov', help='name of the elastic search index')
-    # settings file path
-    # parser.add_argument('-settings_file', default=None, help='index settings file (elastic search)')
+
     # number of processers to use
     parser.add_argument('-c', default=1, type=int, help='number of processors (default: 1)')
     return parser.parse_args(sys.argv[1:])
@@ -90,10 +90,7 @@ def _process_args():
 
 if __name__ == '__main__':
     args = _process_args()
-    if not os.path.exists(args.din):
-        log.error('path to the dataset does not exists')
-        sys.exit(0)
-    log.info('input dataset directory: %s \n' % args.din)
+    index = es_index.ElasticSearch_Index('test-index')
+    index.search('ex_tags_umls')
 
-    nct_index(args.din, args.index_name, args.c)
     log.info('task completed\n')

@@ -1,14 +1,13 @@
-'''
-	UMLS dictionary data structure
-	
-	@author: Riccardo Miotto
-'''
+"""
+    UMLS dictionary data structure
+    @author: Riccardo Miotto
+"""
 
 import ctgov.utility.file as ufile
 
 
 class UmlsDictionary:
-    '''
+    """
         constructor
 
         @var norm: map "sentence" to "preferred sentence"
@@ -16,7 +15,7 @@ class UmlsDictionary:
         @var stype: list of semantic types
         @var stype2scategory: map "semantic type" to "semantic category"
         @var scategory: list of semantic categories
-    '''
+    """
 
     def __init__(self, dumls=None):
         self.norm = {}
@@ -65,26 +64,18 @@ class UmlsDictionary:
                 self.typ2cat[lc] = lg
                 self.scategory.add(lg)
 
-
     # set variables
     def set_normalizer(self, nm):
         self.norm = nm
 
-
     def set_semantic_map(self, smap):
         self.semantic_map = smap
 
-
     def set_semantic_type(self, stype):
         self.semantic_type = stype
-
 
     # retrieve the semantic type of a term
     def retrieve_semantic_category(self, c):
         if c in self.semantic:
             return sorted(self.semantic[c])
         return None
-		
-
-
-

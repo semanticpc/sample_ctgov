@@ -3,8 +3,8 @@
     @author: Riccardo Miotto
 """
 
-from ctgov.tag_miner.textprocesser import TextProcesser
-from ctgov.tag_miner.cvalue import substring_filtering
+from ctgov.concept_mapping.textprocesser import TextProcesser
+from ctgov.concept_mapping.cvalue import substring_filtering
 from ctgov.utility.web import download_web_data
 from ctgov.utility.log import strd_logger
 from datetime import datetime

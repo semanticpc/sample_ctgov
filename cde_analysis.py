@@ -1,16 +1,16 @@
-'''
-	Time Analysis of CDEs
+"""
+    Time Analysis of CDEs
+    @author: Riccardo Miotto
+"""
 
-	@author: Riccardo Miotto
-'''
-
-from ctgov.utility.log import strd_logger
+import argparse
 from matplotlib.backends.backend_pdf import PdfPages
 from pylab import *
 import numpy as np
 import matplotlib.pyplot as plt
+from ctgov.utility.log import strd_logger
 import ctgov.utility.file as ufile
-import argparse, sys, string, os
+
 
 log = strd_logger('cde-time-analysis')
 
@@ -245,5 +245,3 @@ if __name__ == '__main__':
     cde_analysis(args.d, args.o, args.y)
     log.info('task completed')
     print ''
-
-

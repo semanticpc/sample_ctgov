@@ -7,8 +7,8 @@ from ctgov.load_data import load_data
 from ctgov.utility.log import strd_logger
 from multiprocessing import Process
 import ctgov.index.es_index as es_index
-from ctgov.tag_miner.textprocesser import TextProcesser
-from ctgov.tag_miner.cvalue import substring_filtering
+from ctgov.concept_mapping.textprocesser import TextProcesser
+from ctgov.concept_mapping.cvalue import substring_filtering
 import argparse
 import sys
 import math

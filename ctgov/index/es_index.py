@@ -53,7 +53,6 @@ class ElasticSearch_Index(object):
         """
         assert isinstance(self.es, Elasticsearch)
 
-
         # Create a new index if it doesn't exist
         # Open the the index
         if self.es.indices.exists(self.index_name):
@@ -61,7 +60,7 @@ class ElasticSearch_Index(object):
             return True
         else:
             # Read setting from the file
-            if not settings_file == None:
+            if settings_file != None:
                 settings = open(settings_file, mode='r')
                 res = self.es.indices.create(index=self.index_name, body=settings.read())
             else:
@@ -159,12 +158,38 @@ class ElasticSearch_Index(object):
         assert isinstance(self.search_obj, Search)
 
         # define a bucket aggregation and metrics inside:
-        self.search_obj.index(self.index_name)
+
         self.search_obj.aggs.bucket('tokens', 'terms', field=field_name, size=20)
         query = {
-        'query': {"match_all": {}, 'aggregations': {"my_agg": {"terms": {"field": "ec_tags_umls", "size": 0}}}}}
+            'query': {"match_all": {}, 'aggregations': {"my_agg": {"terms": {"field": "ec_tags_umls", "size": 0}}}}}
 
-        q = Q('match_all')
-        s = Search.query(q).using(self.es)
-        print s.execute()
+        s = Search(self.es).index(self.index_name)
+        # s.query("match", ec_tags_umls="ecg normal", size=0).filter("term", ec_tags_umls="liver diseases")
+        #q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
+        q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
+        s.query('match', ec_tags_umls='ecg normal')
+        s.aggs.bucket('myaggs', 'terms', field='ec_tags_umls', size=0)
 
+        print s.execute().aggregations.myaggs.buckets
+        self.query_1()
+
+    def query_1(self):
+        body = {"query": {
+            "filtered": {
+                "query": {
+                    "bool": {
+                        "must": [{"term": {"ec_tags_umls": "ecg normal"}},
+                                 {"term": {"ec_tags_umls": "liver diseases"}}],
+
+
+                    }
+                }
+            }
+
+        }
+        }
+        res = self.es.search(self.index_name, self.doc_type, body)
+        print len(res['hits'])
+        print res['hits']['total']
+        for hit in res['hits']['hits']:
+            print hit['_id']
