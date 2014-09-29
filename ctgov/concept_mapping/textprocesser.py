@@ -6,6 +6,7 @@
 
 import nltk, string, itertools
 from ctgov.utility.log import strd_logger
+from ctgov.utility.web import clean_text
 
 log = strd_logger('textprocesser')
 conj = set(['and', 'or'])
@@ -42,10 +43,11 @@ class TextProcesser:
             return
 
         toremove = string.punctuation.replace('-', '')
-        sent = self.text.decode('utf-8').strip()
+        # sent = self.text.decode('utf-8').strip()
+        sent = clean_text(self.text).strip()
         sent = nltk.tokenize.sent_tokenize(sent)
         for s in sent:
-            s = s.decode('utf-8').strip()
+            #s = s.decode('utf-8').strip()
             words = nltk.tokenize.word_tokenize(s)
             wc = [w for w in words if w not in toremove]
             pos = [t[1] for t in nltk.pos_tag(wc)]
@@ -70,9 +72,7 @@ class TextProcesser:
             us = None
             cl = int(1000)
             wmap = None
-            print 'umls norm', self.umls.norm[w]
             for pt in self.umls.norm[w]:
-                print pt
                 dpt = pt.decode('utf-8')
                 # retain same
                 if dpt == w:

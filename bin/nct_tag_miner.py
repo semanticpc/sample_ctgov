@@ -7,7 +7,7 @@ from ctgov.load_data import load_data
 from ctgov.utility.log import strd_logger
 from multiprocessing import Process
 import ctgov.index.es_index as es_index
-from ctgov.concept_mapping.textprocesser import TextProcesser
+from ctgov.concept_mapping.tagger import Tagger
 from ctgov.concept_mapping.cvalue import substring_filtering
 import argparse
 import sys
@@ -52,14 +52,17 @@ def _worker(nct, index_name, stopwords, umls, pos, npr):
     # Iterate over NCT trials
     for i in xrange(1, len(nct) + 1):
         nctid = nct[i - 1]
+        if nctid != 'NCT00000125':
+            continue
         if i % 500 == 0:
-            log.info(' --- core %d: indexed %d documents' % (npr, i))
+            log.info(' --- core %d: processed %d documents' % (npr, i))
+            break
 
         # Get document from the Elastic Search Index
         doc = index.get_trail(nctid)
         ec = doc['ec_raw_text']
 
-        if not doc.has_key('ec_raw_text') or ec == None:
+        if not doc.has_key('ec_raw_text') or ec is None:
             continue
 
         pec = {}
@@ -67,8 +70,9 @@ def _worker(nct, index_name, stopwords, umls, pos, npr):
             sent = ec[it].split(' - ')
             tags = {}
             for s in sent:
-                proc = TextProcesser(s, 5, stopwords, umls, pos)
+                proc = Tagger(s, 5, stopwords, umls, pos)
                 proc.process()
+                print proc.ptxt
                 for pp in proc.ptxt:
                     freq = tags.setdefault(pp, 0)
                     tags[pp] = freq + 1
@@ -88,11 +92,12 @@ def _worker(nct, index_name, stopwords, umls, pos, npr):
         dictlist = []
         for key, value in jpec.iteritems():
             temp = [key, value]
-            dictlist.append(temp)
+            dictlist.append(key)
         doc['ec_tags_umls'] = dictlist
-
+        print nctid, dictlist
+        break
         # Index the new document
-        index.index_trial(nctid, doc)
+        # index.index_trial(nctid, doc)
 
 
 # Main Function

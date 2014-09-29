@@ -94,7 +94,7 @@ class ClinicalTrial_Parser(object):
         ectxt = crt.find('textblock')
         if ectxt is None:
             return
-        return self.__preprocess_ec(clean_text(ectxt))
+        return self.__preprocess_ec(clean_text(ectxt.text))
 
 
     def __todate(self, s):

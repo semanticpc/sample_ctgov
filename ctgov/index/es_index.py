@@ -29,9 +29,8 @@ class ElasticSearch_Index(object):
         :return: Elasticsearch() instance
         """
         assert isinstance(self.host_name, str)
-        assert isinstance(self.port_number, long)
 
-        host = [{'host' : self.host_name, 'port' : self.port_number}]
+        host = [{'host': self.host_name, 'port': self.port_number}]
 
         try:
             es = Elasticsearch(host)
@@ -165,7 +164,7 @@ class ElasticSearch_Index(object):
 
         s = Search(self.es).index(self.index_name)
         # s.query("match", ec_tags_umls="ecg normal", size=0).filter("term", ec_tags_umls="liver diseases")
-        #q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
+        # q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
         q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
         s.query('match', ec_tags_umls='ecg normal')
         s.aggs.bucket('myaggs', 'terms', field='ec_tags_umls', size=0)
