@@ -14,7 +14,7 @@ import os
 log = strd_logger('nct-indexer')
 
 
-def nct_index(din, index_name, nprocs=1, host='localhost', port_no=9200, settings_file=None):
+def nct_index(din, index_name, host='localhost', port_no=9200, nprocs=1, settings_file=None):
     # open the clinical trail ids file and load to a list
     log.info('opening file -- trial_ids.txt')
 
@@ -102,5 +102,5 @@ if __name__ == '__main__':
         sys.exit(0)
     log.info('input dataset directory: %s \n' % args.din)
 
-    nct_index(args.din, args.index_name, args.host, args.port, args.c)
+    nct_index(args.din, args.index_name, args.host, long(args.port), args.c)
     log.info('task completed\n')

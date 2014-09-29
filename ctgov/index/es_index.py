@@ -29,12 +29,12 @@ class ElasticSearch_Index(object):
         :return: Elasticsearch() instance
         """
         assert isinstance(self.host_name, str)
-        assert isinstance(self.port_number, int)
+        assert isinstance(self.port_number, long)
 
-        hosts = dict(host=self.host_name, port=self.port_number)
+        host = [{'host' : self.host_name, 'port' : self.port_number}]
 
         try:
-            es = Elasticsearch()
+            es = Elasticsearch(host)
             self.search_obj = Search(es)
         except ConnectionError as ce:
             log.error('Unable to connect to Elastic Search Server')
