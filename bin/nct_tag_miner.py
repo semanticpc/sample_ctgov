@@ -8,7 +8,6 @@ from ctgov.utility.log import strd_logger
 from multiprocessing import Process
 import ctgov.index.es_index as es_index
 from ctgov.concept_mapping.tagger import Tagger
-from ctgov.concept_mapping.cvalue import substring_filtering
 import argparse
 import sys
 import math
@@ -17,14 +16,16 @@ import math
 log = strd_logger('tag-miner')
 
 
-def nct_tagging(index_name, process_ids, stopwords, umls, pos, nprocs=1):
+def nct_tagging(index_name, host, port_no, process_ids,
+                stopwords, umls, pos, nprocs=1):
+
     # open the clinical trail ids file to process
     nct_ids = []
     for line in open(process_ids, 'rb'):
         nct_ids.append(line.strip())
 
     # Check if index exists
-    index = es_index.ElasticSearch_Index(index_name)
+    index = es_index.ElasticSearch_Index(index_name, host=host, port=port_no)
     index.add_field('ec_tags_umls', term_vector=True)
 
     # Get clinical
@@ -34,7 +35,8 @@ def nct_tagging(index_name, process_ids, stopwords, umls, pos, nprocs=1):
     chunksize = int(math.ceil(len(nct_ids) / float(nprocs)))
     for i in xrange(nprocs):
         p = Process(target=_worker, args=(nct_ids[chunksize * i:chunksize * (i + 1)],
-                                          index_name, stopwords, umls, pos, (i + 1)))
+                                          index_name, host, port_no,
+                                          stopwords, umls, pos, (i + 1)))
         procs.append(p)
         p.start()
 
@@ -46,17 +48,16 @@ def nct_tagging(index_name, process_ids, stopwords, umls, pos, nprocs=1):
 
 # processer worker
 # indexer function
-def _worker(nct, index_name, stopwords, umls, pos, npr):
-    index = es_index.ElasticSearch_Index(index_name)
-
+def _worker(nct, index_name, host, port_no, stopwords, umls, pos, npr):
+    index = es_index.ElasticSearch_Index(index_name, host=host, port=port_no)
+    tagger = Tagger(5, stopwords, umls, pos)
     # Iterate over NCT trials
     for i in xrange(1, len(nct) + 1):
         nctid = nct[i - 1]
-        if nctid != 'NCT00000125':
-            continue
+        # if nctid != 'NCT00000331':
+        # continue
         if i % 500 == 0:
             log.info(' --- core %d: processed %d documents' % (npr, i))
-            break
 
         # Get document from the Elastic Search Index
         doc = index.get_trail(nctid)
@@ -65,39 +66,16 @@ def _worker(nct, index_name, stopwords, umls, pos, npr):
         if not doc.has_key('ec_raw_text') or ec is None:
             continue
 
-        pec = {}
-        for it in ec:
-            sent = ec[it].split(' - ')
-            tags = {}
-            for s in sent:
-                proc = Tagger(s, 5, stopwords, umls, pos)
-                proc.process()
-                print proc.ptxt
-                for pp in proc.ptxt:
-                    freq = tags.setdefault(pp, 0)
-                    tags[pp] = freq + 1
-
-            if len(tags) == 0:
-                continue
-
-            pec[it] = substring_filtering(tags, 1)
-
-        # join inclusion/exclusion
-        jpec = {}
-        for it in pec:
-            for t in pec[it]:
-                v = jpec.setdefault(t, 0)
-                jpec[t] = v + pec[it][t]
+        (pec, jpec) = tagger.process(ec)
 
         dictlist = []
         for key, value in jpec.iteritems():
-            temp = [key, value]
-            dictlist.append(key)
+            for i in range(value):
+                dictlist.append(key)
         doc['ec_tags_umls'] = dictlist
-        print nctid, dictlist
-        break
+
         # Index the new document
-        # index.index_trial(nctid, doc)
+        index.index_trial(nctid, doc)
 
 
 # Main Function
@@ -108,6 +86,12 @@ def _process_args():
 
     # index name
     parser.add_argument('-index_name', default='ctgov', help='name of the elastic search index')
+
+    # host name
+    parser.add_argument('-host', default='localhost', help='Elastic search hostname')
+
+    # port number
+    parser.add_argument('-port', default='9200', help='Elastic search port number')
 
     # ids file
     parser.add_argument('-process_ids', help='file containing clinical ids to process')
@@ -128,5 +112,6 @@ if __name__ == '__main__':
     args = _process_args()
 
     edata = load_data(args.w, args.u, args.p)
-    nct_tagging(args.index_name, args.process_ids, edata[0], edata[1], edata[2], args.c)
+    nct_tagging(args.index_name, args.host, int(args.port),
+                args.process_ids, edata[0], edata[1], edata[2], args.c)
     log.info('task completed\n')
