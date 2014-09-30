@@ -89,7 +89,7 @@ class ConceptFilters(object):
         try:
             a = float(x)
             b = int(a)
-        except ValueError:
+        except (ValueError, OverflowError) as e:
             return False
         else:
             return True
