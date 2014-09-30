@@ -36,7 +36,8 @@ def nct_index(din, index_name, host='localhost', port_no=9200, nprocs=1, setting
     else:
         index.open_index(settings_file)
 
-
+    index.add_field('conditions', term_vector=False)
+    index.add_field('study_type', term_vector=False)
 
     # process each clinical trial and store to XML file
     log.info('processing clinical trials')
@@ -62,6 +63,9 @@ def _worker(nct, data_path, index_name, host, port_no, npr):
 
     for i in xrange(1, len(nct) + 1):
         nctid = nct[i - 1]
+
+        if i == 3:
+            break
 
         if i % 500 == 0:
             log.info(' --- core %d: indexed %d documents' % (npr, i))

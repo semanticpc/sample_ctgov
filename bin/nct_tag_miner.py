@@ -54,6 +54,8 @@ def _worker(nct, index_name, host, port_no, stopwords, umls, pos, npr):
     # Iterate over NCT trials
     for i in xrange(1, len(nct) + 1):
         nctid = nct[i - 1]
+        if i == 3:
+            break
         # if nctid != 'NCT00000331':
         # continue
         if i % 500 == 0:
@@ -78,7 +80,7 @@ def _worker(nct, index_name, host, port_no, stopwords, umls, pos, npr):
             for i in range(value):
                 dictlist.append(key)
         doc['ec_tags_umls'] = dictlist
-
+        print nctid, dictlist
         # Index the new document
         index.index_trial(nctid, doc)
 

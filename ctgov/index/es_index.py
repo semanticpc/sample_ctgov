@@ -159,18 +159,18 @@ class ElasticSearch_Index(object):
         # define a bucket aggregation and metrics inside:
 
         self.search_obj.aggs.bucket('tokens', 'terms', field=field_name, size=20)
-        query = {
-            'query': {"match_all": {}, 'aggregations': {"my_agg": {"terms": {"field": "ec_tags_umls", "size": 0}}}}}
+        # query = {'query': {"match_all": {}, 'aggregations': {"my_agg": {"terms": {"field": "ec_tags_umls", "size": 0}}}}}
 
         s = Search(self.es).index(self.index_name)
         # s.query("match", ec_tags_umls="ecg normal", size=0).filter("term", ec_tags_umls="liver diseases")
         # q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
-        q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
-        s.query('match', ec_tags_umls='ecg normal')
-        s.aggs.bucket('myaggs', 'terms', field='ec_tags_umls', size=0)
+        #q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
+        s.query('match_all')
+        s.aggs.bucket('myaggs', 'terms', field=field_name, size=0)
 
-        print s.execute().aggregations.myaggs.buckets
-        self.query_1()
+        for i in s.execute().aggregations.myaggs.buckets:
+            print i['key'], i['doc_count']
+            #self.query_1()
 
     def query_1(self):
         body = {"query": {

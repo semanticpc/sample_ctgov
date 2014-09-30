@@ -31,7 +31,7 @@ class ClinicalTrial_Parser(object):
             conditions = []
             if (cond is not None) and (len(cond) > 0):
                 for c in cond:
-                    conditions.append(c.text)
+                    conditions.append(c.text.lower())
             doc['conditions'] = conditions
 
             # Dates

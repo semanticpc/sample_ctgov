@@ -91,6 +91,6 @@ def _process_args():
 if __name__ == '__main__':
     args = _process_args()
     index = es_index.ElasticSearch_Index('test-index')
-    index.search('ex_tags_umls')
+    index.search('conditions')
 
     log.info('task completed\n')
