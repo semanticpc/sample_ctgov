@@ -61,9 +61,14 @@ def _worker(nct, index_name, host, port_no, stopwords, umls, pos, npr):
 
         # Get document from the Elastic Search Index
         doc = index.get_trail(nctid)
+
+
+        if not doc.has_key('ec_raw_text'):
+            continue
+
         ec = doc['ec_raw_text']
 
-        if not doc.has_key('ec_raw_text') or ec is None:
+        if ec is None:
             continue
 
         (pec, jpec) = tagger.process(ec)

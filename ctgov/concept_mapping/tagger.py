@@ -34,6 +34,8 @@ class Tagger:
             for s in section:
                 # print 'Section:', s
                 ptxt = self.process_section(s)
+                if ptxt is None:
+                    continue
                 for pp in ptxt:
                     for sent_ptxt in pp:
                         freq = tags.setdefault(sent_ptxt, 0)
