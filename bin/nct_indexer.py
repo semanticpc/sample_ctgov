@@ -64,8 +64,8 @@ def _worker(nct, data_path, index_name, host, port_no, npr):
     for i in xrange(1, len(nct) + 1):
         nctid = nct[i - 1]
 
-        if i == 3:
-            break
+        # if i == 3:
+        #    break
 
         if i % 500 == 0:
             log.info(' --- core %d: indexed %d documents' % (npr, i))
