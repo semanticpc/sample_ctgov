@@ -153,24 +153,20 @@ class ElasticSearch_Index(object):
             return False
         return True
 
-    def search(self, field_name):
+    def get_unique_terms(self, field_name, min_docs=5):
         assert isinstance(self.search_obj, Search)
 
         # define a bucket aggregation and metrics inside:
 
         self.search_obj.aggs.bucket('tokens', 'terms', field=field_name, size=20)
-        # query = {'query': {"match_all": {}, 'aggregations': {"my_agg": {"terms": {"field": "ec_tags_umls", "size": 0}}}}}
-
         s = Search(self.es).index(self.index_name)
-        # s.query("match", ec_tags_umls="ecg normal", size=0).filter("term", ec_tags_umls="liver diseases")
-        # q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
-        #q = Q('bool', must=[Q('match', ec_tags_umls='ecg normal')])
         s.query('match_all')
-        s.aggs.bucket('myaggs', 'terms', field=field_name, size=0)
+        s.aggs.bucket('myaggs', 'terms', field=field_name, size=0, min_doc_count=min_docs)
 
+        res = {}
         for i in s.execute().aggregations.myaggs.buckets:
-            print i['key'], i['doc_count']
-            #self.query_1()
+            res[i['key']] = i['doc_count']
+        return res
 
     def query_1(self):
         body = {"query": {
@@ -188,7 +184,6 @@ class ElasticSearch_Index(object):
         }
         }
         res = self.es.search(self.index_name, self.doc_type, body)
-        print len(res['hits'])
         print res['hits']['total']
         for hit in res['hits']['hits']:
             print hit['_id']
