@@ -106,7 +106,7 @@ class ElasticSearch_Index(object):
         try:
             out = self.es.get(index=self.index_name, id=nct_id, doc_type=self.doc_type)['_source']
         except Exception as e:
-            log.error('Unable to index trail id %s' % nct_id)
+            # log.error('Unable to get trail id %s' % nct_id)
             return False
         return out
 
