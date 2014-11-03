@@ -26,6 +26,10 @@ class Tagger:
         self.mapper = DictionaryMapping(umls)
         self.ngram = ngram
 
+    def process_text(self, text):
+        ptxt = self.process_section(text)
+        return ptxt
+
     def process(self, ec_dict):
         pec = {}
         for it in ec_dict:
@@ -33,6 +37,12 @@ class Tagger:
             tags = {}
             for s in section:
                 # print 'Section:', s
+                try:
+                    s = str(s)
+                except UnicodeEncodeError:
+                    s = str(s.encode('utf-8'))
+                s = s.lower().strip()
+                s = s.replace('- ', ' ').replace(' -', ' ')
                 ptxt = self.process_section(s)
                 if ptxt is None:
                     continue
@@ -58,12 +68,6 @@ class Tagger:
     # process the text
     def process_section(self, text):
         section_ptxt = []
-        try:
-            text = str(text)
-        except UnicodeEncodeError:
-            text = str(text.encode('utf-8'))
-        text = text.lower().strip()
-        text = text.replace('- ', ' ').replace(' -', ' ')
 
         if len(text) == 0:
             return
@@ -97,9 +101,10 @@ class Tagger:
                         sent_ptxt += tags
 
                         # Apply post-filters
-                        #if not self.pos_filter.accpet_string(w, pos):
+                        # if not self.pos_filter.accpet_string(w, pos):
                         #continue
-            section_ptxt.append(sent_ptxt)
+            if len(sent_ptxt) is not 0:
+                section_ptxt.append(sent_ptxt)
         return section_ptxt
 
     def substring_filtering(self, tags, min_c=1):
